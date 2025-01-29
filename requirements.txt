@@ -5,3 +5,4 @@ torch
 pdfplumber
 requests
 python-multipart
+google-generativeai
