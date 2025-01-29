@@ -6,3 +6,4 @@ pdfplumber
 requests
 python-multipart
 google-generativeai
+python-dotenv
