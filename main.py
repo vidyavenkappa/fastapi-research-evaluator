@@ -10,8 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure Gemini API
-GENAI_API_KEY = "your-gemini-api-key"  # Replace with your Google Gemini API Key
-genai.configure(api_key=GENAI_API_KEY)
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # Initialize FastAPI
 app = FastAPI()
