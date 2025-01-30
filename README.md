@@ -1,4 +1,4 @@
-# **📚 AI Research Paper Evaluator**
+# **📚  Review Guide: AI Research Paper Evaluator**
 An **AI-powered application** that analyzes research papers and provides **structured evaluations** using **Google Gemini AI**.  
 
 ✅ **Backend:** FastAPI (Python)  
