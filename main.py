@@ -5,7 +5,7 @@ import google.generativeai as genai
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-
+from dotenv  import load_dotenv
 load_dotenv()
 
 # Configure Gemini API
@@ -23,7 +23,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# ✅ Define the evaluation prompt
+
 PROMPT = """
 I have a PDF research paper, and I would like to evaluate its likelihood of being accepted or rejected at a leading machine learning (ML) conference, such as NeurIPS, ICLR, ICML, CoNLL, or ACL. The evaluation should be based on the standard review criteria used across these conferences, ensuring a detailed and thorough assessment that addresses both the strengths and weaknesses of the paper.
 
@@ -68,7 +68,10 @@ def evaluate_paper(text, gemini_key):
         genai.configure(api_key=gemini_key)
 
         # ✅ Initialize Gemini Model
-        model = genai.GenerativeModel("gemini-2.0-pro")
+        model_name = 'gemini-1.5-flash'
+        # model = genai.GenerativeModel("gemini-2.0-pro")
+        model = genai.GenerativeModel(model_name)
+
 
         # ✅ Generate AI Response
         response = model.generate_content(f"{PROMPT}\n\n{text[:3000]}")  # Limit input to avoid exceeding model limits
