@@ -1,7 +1,3 @@
-Here’s a **GitHub-friendly `README.md`** for your **FastAPI backend** and **React frontend**.
-
----
-
 # **📚 AI Research Paper Evaluator**
 An **AI-powered application** that analyzes research papers and provides **structured evaluations** using **Google Gemini AI**.  
 
