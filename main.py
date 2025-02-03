@@ -25,19 +25,138 @@ TEMP_DIR = "temp"
 MODEL_NAME = "gemini-1.5-flash"
 
 PROMPT = """
-I have a PDF research paper, and I would like to evaluate its likelihood of being accepted or rejected at a leading machine learning (ML) conference, such as NeurIPS, ICLR, ICML, CoNLL, or ACL. The evaluation should be based on the standard review criteria used across these conferences, ensuring a detailed and thorough assessment that addresses both the strengths and weaknesses of the paper.
+I have uploaded a research paper in PDF format, and I would like a **thorough, structured evaluation** to determine its likelihood of being accepted at a **leading ML/NLP conference** (NeurIPS, ICLR, ICML, CoNLL, ACL). The evaluation should be based on the **standard peer-review criteria** used by these conferences.  
 
-Evaluation Criteria:
-- **Originality (1-5)**: Evaluate novelty, ideas, and contributions to ML/NLP.
-- **Soundness & Correctness (1-5)**: Check methodology, validity, and reproducibility.
-- **Clarity (1-5)**: Assess readability and organization.
-- **Meaningful Comparison (1-5)**: Compare to existing literature and baselines.
-- **Impact (1-5)**: Determine future research influence.
-- **Substance (1-5)**: Evaluate depth and scope.
-- **Replicability (1-5)**: Assess reproducibility with details provided.
-- **Appropriateness (1-5)**: Ensure alignment with ML/NLP conferences.
-- **Ethical Concerns (1-5)**: Check bias, privacy, and misuse risks.
-- **Relation to Prior Work (1-5)**: Evaluate citations and comparisons.
+The review must be **specific and detailed**, referencing **actual parts of the paper** (e.g., equations, figures, tables, methodology sections). In addition to **scoring each category (1-5),** provide **clear reasons** for the score and suggest **specific improvements** to increase acceptance chances.
+
+---
+
+### **📌 Evaluation Criteria**
+For each category below, **assign a score from 1-5** and provide:
+- **Detailed Justification** → Why was this score assigned?  
+- **Specific Evidence** → Cite parts of the paper that support this evaluation.  
+- **Actionable Suggestions** → Provide concrete recommendations for improvement.  
+
+#### **1️⃣ Originality (1-5)**
+- Does the paper introduce a **novel idea, model, or approach**?  
+- How does it differ from previous work?  
+- Are there **clear innovations** or is it an **incremental improvement**?  
+- **Reference:** Identify where novelty is discussed in the paper (e.g., Section 3.1, Figure 4).  
+
+🔹 **Improvement Suggestion**:  
+- If originality is weak, suggest **how the method can be differentiated** from prior work (e.g., proposing a new loss function, exploring an underrepresented dataset).  
+- Recommend **new baselines** to compare against if originality is limited.  
+
+---
+
+#### **2️⃣ Soundness & Correctness (1-5)**
+- Is the methodology logically sound and **theoretically justified**?  
+- Are **assumptions valid**, and are there any **mathematical flaws**?  
+- Are experiments **statistically significant**, or are conclusions based on weak evidence?  
+
+🔹 **Improvement Suggestion**:  
+- If there are missing proofs or weak justifications, suggest adding **mathematical derivations or additional experimental validation**.  
+- If hyperparameter tuning is absent, recommend running **additional ablation studies**.
+
+---
+
+#### **3️⃣ Clarity (1-5)**
+- Is the paper **well-organized and easy to follow**?  
+- Are technical terms, concepts, and figures **clearly explained**?  
+- Are important **equations, tables, and graphs labeled correctly**?  
+
+🔹 **Improvement Suggestion**:  
+- If unclear, suggest **rewriting sections in simpler language** or **reorganizing content for better flow**.  
+- If **notation is inconsistent**, recommend standardizing mathematical symbols.  
+
+---
+
+#### **4️⃣ Meaningful Comparison (1-5)**
+- Does the paper **compare results with prior work**?  
+- Are comparisons **fair**, using **strong baselines**?  
+- Does it cite the most relevant papers in the field?  
+
+🔹 **Improvement Suggestion**:  
+- If missing key comparisons, **suggest additional benchmarks** (e.g., add ResNet-50 if missing in a vision paper).  
+- Recommend **evaluating against newer state-of-the-art models** if only older baselines are used.  
+
+---
+
+#### **5️⃣ Impact (1-5)**
+- How significant is the contribution?  
+- Does the paper introduce a method that can lead to **new research directions**?  
+
+🔹 **Improvement Suggestion**:  
+- If impact is limited, suggest **applying the method to real-world applications** or showing **generalization to different domains**.  
+
+---
+
+#### **6️⃣ Substance (1-5)**
+- Is the **work sufficiently detailed** to be considered substantial?  
+- Does it explore **multiple aspects of the problem**?  
+
+🔹 **Improvement Suggestion**:  
+- If the paper lacks depth, recommend **adding experiments on multiple datasets** or **exploring more ablation studies**.  
+
+---
+
+#### **7️⃣ Replicability (1-5)**
+- Can other researchers **reproduce the results** based on the provided details?  
+- Are **code, dataset, and hyperparameters included**?  
+
+🔹 **Improvement Suggestion**:  
+- If replicability is poor, suggest **sharing code in a GitHub repository** and **adding dataset preprocessing details**.  
+
+---
+
+#### **8️⃣ Appropriateness (1-5)**
+- Does the paper **align with the scope** of ML/NLP conferences?  
+
+🔹 **Improvement Suggestion**:  
+- If misaligned, recommend **submitting to a more appropriate venue** (e.g., EMNLP instead of NeurIPS).  
+
+---
+
+#### **9️⃣ Ethical Concerns (1-5)**
+- Does the paper consider **bias, fairness, or ethical risks**?  
+
+🔹 **Improvement Suggestion**:  
+- If missing, recommend **analyzing biases in datasets** and **including ethical discussions**.  
+
+---
+
+#### **🔟 Relation to Prior Work (1-5)**
+- Does the paper properly **cite and position itself** within existing research?  
+
+🔹 **Improvement Suggestion**:  
+- If citations are missing, suggest adding **key references from the past 2-3 years**.  
+
+---
+
+### **📌 Final Recommendations**
+After scoring each category, provide:  
+✅ **Overall Score (1-5)** → Justify why this score was assigned.  
+✅ **Reviewer Confidence (1-5)** → Rate how confident you are in this evaluation.  
+✅ **Reasons for Acceptance** → Highlight the strongest contributions.  
+✅ **Reasons for Rejection** → Identify critical weaknesses.  
+✅ **How to Improve for Acceptance** → Provide clear suggestions for a revision.  
+
+---
+
+### **📌 Example Review Output**
+**Originality: 3/5**  
+✅ **Strength:** The paper proposes a transformer-based approach for multilingual text classification (**Section 3.2, Figure 5**).  
+❌ **Weakness:** However, it does not introduce a fundamentally new concept; it mostly builds on **BERT-based models** (**Section 2.1, Related Work**).  
+🔹 **Improvement Suggestion:**  
+- Consider extending the model to **low-resource languages** to increase novelty.  
+- Compare against **XLM-R and T5 models**, which are more competitive benchmarks.  
+
+**Final Score: 3.5/5 (Borderline Accept)**  
+🔹 **Suggested Improvements for Acceptance:**  
+1. Add a **new experimental baseline (T5)** to strengthen comparisons.  
+2. Improve **clarity in Section 3** by explaining the dataset more clearly.  
+3. Provide **code and hyperparameter settings** for reproducibility. 
+
 
 ### Deliverables:
 - **Score Breakdown** (1-5 for each criterion)
