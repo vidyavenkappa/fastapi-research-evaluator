@@ -232,7 +232,7 @@ Beyond standard criteria, assess the paper against specific expectations of the 
 
 
 📌 Final Recommendations
-✅ Overall Verdict (1-10): Justify the final rating in clear, critical terms.
+✅ Overall Score (1-10): Justify the final rating in clear, critical terms.
 ✅ Reviewer Confidence (1-5): Rate how confident you are in this evaluation.
 ✅ Strongest Contributions: List any strengths without diluting criticism.
 ✅ Critical Weaknesses: Directly state why the paper is flawed and if it is not ready for publication.
