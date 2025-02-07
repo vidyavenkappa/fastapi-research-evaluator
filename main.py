@@ -78,7 +78,7 @@ def validate_file(file: UploadFile) -> None:
     if size > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=400,
-            detail=f"File size exceeds maximum limit of {MAX_FILE_SIZE/1024/1024}MB"
+            detail=f"File size exceeds maximum limit of {2*MAX_FILE_SIZE/1024/1024}MB"
         )
 
 def validate_api_key(api_key: str) -> None:
