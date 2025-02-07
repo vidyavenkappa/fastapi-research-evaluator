@@ -19,7 +19,7 @@ load_dotenv()
 
 # Constants
 ALLOWED_EXTENSIONS = {".pdf", ".txt", ".doc", ".docx"}
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+MAX_FILE_SIZE = 20 * 1024 * 1024  # 10MB
 TEMP_DIR = "temp"
 MODEL_NAME = "gemini-1.5-flash"
 
@@ -78,7 +78,7 @@ def validate_file(file: UploadFile) -> None:
     if size > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=400,
-            detail=f"File size exceeds maximum limit of {2*MAX_FILE_SIZE/1024/1024}MB"
+            detail=f"File size exceeds maximum limit of {MAX_FILE_SIZE/1024/1024}MB"
         )
 
 def validate_api_key(api_key: str) -> None:
@@ -132,294 +132,114 @@ def evaluate_paper(text: str, gemini_key: str, conference: str, add_prompt: str 
     The evaluation prompt is augmented with the selected conference.
     """
     try:
-#         prompt="""
-# **📌 Research Paper Evaluation Prompt**
 
-# I have uploaded a research paper in PDF format, and I need a **structured, thorough evaluation** to determine its likelihood of acceptance at a specific **ML/NLP conference** (NeurIPS, ICLR, ICML, CoNLL, ACL, EMNLP). The review should be based on **standard peer-review criteria** along with additional **conference-specific evaluation criteria**.
+        prompt = """
+        
+        
+📌 Research Paper Evaluation Prompt (For Critical, Human-Like Review)
+🔍 Goal:
+Evaluate the research paper (PDF format) critically and rigorously, identifying fundamental technical flaws, inconsistencies, and missing elements. The review must go beyond a structured checklist and provide a nuanced, in-depth critique akin to a detailed human review.
 
-# The evaluation must be **specific and detailed**, referencing **actual parts of the paper** (e.g., equations, figures, tables, methodology sections). Each category should be assigned a **score from 1 to 5**, with **clear reasoning** for the score and **specific improvement suggestions**.
+Conceptual flaws must be explicitly discussed, questioning the coherence between objectives, claims, methodology, and experimental results.
+Mathematical descriptions and formalization should be scrutinized line-by-line to check for inaccuracies, inconsistencies, or insufficient justification.
+Logical reasoning gaps must be pointed out, ensuring the paper’s argumentation is sound and conclusions are well-supported.
+Explicitly highlight missing sections (e.g., related work, justification for hyperparameters, ablation studies, ethical considerations).
+Acknowledge strengths where present, but do not dilute the critique. The review should be direct, critical, and constructive.
+Each evaluation category should be assigned a 1 to 5 score, with:
 
-# ---
+A clear justification for the score (not just general remarks).
+Specific evidence from the paper (e.g., section numbers, equations, figures).
+Concrete suggestions for improvement, requiring substantial effort from the authors rather than minor refinements.
+📌 Evaluation Criteria
+1️⃣ Originality (1-5)
+Does the paper introduce a genuinely novel idea, or is it a minor variation of existing work?
+Is the contribution incremental, redundant, or lacking originality?
+Does the paper convincingly justify why its approach is novel?
+✅ Strengths: Identify truly novel aspects (if any).
+❌ Weaknesses: Directly state if the contribution is weak or insufficiently justified. If prior work already covers similar ideas, call this out explicitly.
+🔹 Improvement Suggestion: Insist on stronger theoretical or empirical differentiation from prior work. If the novelty is weak, suggest alternative problem settings or methodological innovations.
 
-# ## **📌 Evaluation Criteria**
+2️⃣ Theoretical Soundness & Methodological Rigor (1-5)
+Are theoretical claims well-supported, or are they vague and hand-wavy?
+Are assumptions valid, clearly justified, and non-trivial?
+Do the mathematical formalizations contain inconsistencies, ambiguities, or unstated constraints?
+Are key derivations and proofs complete, or do they skip crucial steps?
+✅ Strengths: If formalism is clear and rigorous, acknowledge it.
+❌ Weaknesses: Identify any logical inconsistencies, missing derivations, or incorrect assumptions. If methodology lacks proper justification, call it out explicitly.
+🔹 Improvement Suggestion: Demand full proof verification, correction of flawed assumptions, or additional theoretical justification.
 
-# For each criterion below, assign a **score from 1 to 5** and provide:
-# - **Detailed Justification** → Why was this score assigned?  
-# - **Specific Evidence** → Cite sections of the paper that support this evaluation.  
-# - **Actionable Suggestions** → Provide concrete recommendations for improvement.  
+3️⃣ Coherence Between Claims and Experiments (1-5)
+Do the experimental results actually support the paper’s claims?
+Are there hidden contradictions between what the paper argues and what the results demonstrate?
+Does the discussion overstate the significance of results?
+✅ Strengths: Highlight cases where results match claims.
+❌ Weaknesses: Point out any instances of cherry-picking, over-exaggeration, or contradictions between methodology and findings.
+🔹 Improvement Suggestion: Demand revised claims, stronger justification of conclusions, or additional experiments to validate assertions.
 
-# ### **1️⃣ Originality (1-5)**
-# - Does the paper introduce a **novel idea, model, or approach**?
-# - How does it differ from previous work?
-# - Are there **clear innovations**, or is it an **incremental improvement**?
+4️⃣ Experimental Soundness (1-5)
+Are the experimental results statistically robust?
+Are baselines appropriate, strong, and up-to-date?
+Are hyperparameters, datasets, and training details properly reported?
+Does the experimental design support generalizability, or are results cherry-picked?
+✅ Strengths: Recognize cases where experiments are well-designed.
+❌ Weaknesses: Identify weak baselines, lack of statistical tests, omitted ablation studies, or missing hyperparameter settings.
+🔹 Improvement Suggestion: Suggest stronger baselines, more ablation studies, and clearer reporting of all experimental details.
 
-# 🔹 **Improvement Suggestion**: Differentiate the method further, add novel aspects, or compare with additional baselines.
+5️⃣ Depth and Technical Substance (1-5)
+Does the paper demonstrate deep technical insight, or is it shallow and superficial?
+Is the problem approached from multiple angles, or is the exploration surface-level?
+✅ Strengths: Acknowledge comprehensive exploration.
+❌ Weaknesses: Call out shallow reasoning, oversimplifications, or lack of depth.
+🔹 Improvement Suggestion: Suggest more rigorous technical exploration, alternative perspectives, or additional theoretical backing.
 
-# ### **2️⃣ Soundness & Correctness (1-5)**
-# - Is the methodology logically sound and **theoretically justified**?
-# - Are **assumptions valid**, and are there any **mathematical flaws**?
-# - Are experiments **statistically significant**?
+6️⃣ Clarity & Presentation (1-5)
+Are key concepts well-explained, or does the paper assume too much background knowledge?
+Are notation and figures clear and self-contained?
+Are there ambiguities in definitions or unclear sections?
+✅ Strengths: Recognize well-structured explanations.
+❌ Weaknesses: Point out vague writing, inconsistent notation, or unexplained jargon.
+🔹 Improvement Suggestion: Suggest rewriting unclear sections, adding more intuitive explanations, or improving figures.
 
-# 🔹 **Improvement Suggestion**: Add missing proofs, conduct ablation studies, or strengthen experimental justification.
+7️⃣ Reproducibility & Transparency (1-5)
+Can others fully reproduce the results?
+Are code, datasets, and hyperparameters provided?
+Are crucial experimental details missing or ambiguous?
+✅ Strengths: If reproducibility is strong, acknowledge it.
+❌ Weaknesses: Criticize missing details, lack of dataset/code access, or vague descriptions.
+🔹 Improvement Suggestion: Demand open-source code, full dataset access, and detailed hyperparameter reporting.
 
-# ### **3️⃣ Clarity (1-5)**
-# - Is the paper **well-organized and easy to follow**?
-# - Are technical terms, concepts, and figures **clearly explained**?
+8️⃣ Missing Elements (Standalone Section)
+Beyond scoring, explicitly identify if any key sections are absent, such as:
 
-# 🔹 **Improvement Suggestion**: Rewrite unclear sections, standardize notation, or improve figure explanations.
+Missing Related Work section.
+No explanation of hyperparameters or training details.
+No ablation studies or statistical significance tests.
+If something critical is missing, call it out explicitly rather than relying on low scores.
 
-# ### **4️⃣ Meaningful Comparison (1-5)**
-# - Does the paper **compare results with prior work**?
-# - Are comparisons **fair**, using **strong baselines**?
+📌 Conference-Specific Evaluation
+Beyond standard criteria, assess the paper against specific expectations of the target conference (e.g., NeurIPS, ICLR, ACL, ICML, EMNLP).
 
-# 🔹 **Improvement Suggestion**: Add missing benchmarks, evaluate against newer models.
-
-# ### **5️⃣ Impact (1-5)**
-# - How significant is the contribution?
-# - Does the paper introduce a method that can lead to **new research directions**?
-
-# 🔹 **Improvement Suggestion**: Show real-world applicability or generalization across domains.
-
-# ### **6️⃣ Substance (1-5)**
-# - Is the **work sufficiently detailed**?
-# - Does it explore **multiple aspects of the problem**?
-
-# 🔹 **Improvement Suggestion**: Add more experiments, datasets, or analysis.
-
-# ### **7️⃣ Replicability (1-5)**
-# - Can other researchers **reproduce the results**?
-# - Are **code, dataset, and hyperparameters included**?
-
-# 🔹 **Improvement Suggestion**: Provide public code repository, dataset details, and experimental settings.
-
-# ### **8️⃣ Appropriateness (1-5)**
-# - Does the paper **align with the scope** of the selected conference?
-
-# 🔹 **Improvement Suggestion**: If misaligned, recommend a more suitable venue.
-
-# ### **9️⃣ Ethical Concerns (1-5)**
-# - Does the paper consider **bias, fairness, or ethical risks**?
-
-# 🔹 **Improvement Suggestion**: Add analysis of biases, discuss ethical considerations.
-
-# ### **🔟 Relation to Prior Work (1-5)**
-# - Does the paper properly **cite and position itself** within existing research?
-
-# 🔹 **Improvement Suggestion**: Add key citations from recent literature.
-
-# ---
-
-# ## **📌 Conference-Specific Criteria**
-# In addition to general criteria, evaluate based on **conference-specific expectations**:
-
-# | **Conference** | **Secondary Criteria & Weighting** |
-# | :---------- | :----------------------------------------------------------- |
+# | **Conference** | **Additional Evaluation Areas** |
+# | :---------- | :-------------------------------------------- |
 # | **NeurIPS** | **Impact (15%)**, **Theoretical Depth (10%)**, **Reproducibility (5%)** |
 # | **ICLR** | **Reproducibility (20%)**, **Open Science (10%)**, **Negative Results (5%)** |
 # | **ACL** | **Ethics (15%)**, **Meaningful Comparison (10%)**, **Multilinguality (5%)** |
 # | **ICML** | **Algorithmic Innovation (20%)**, **Scalability (10%)** |
 # | **EMNLP** | **Practical Utility (20%)**, **Dataset Quality (10%)** |
 
-# For the **selected conference**, provide **additional ratings and explanations** based on these **secondary criteria**.
+# For the selected conference, provide **additional ratings and explanations** based on these **secondary criteria**.
 
-# ---
 
-# ## **📌 Final Recommendations**
-# After scoring each category, provide:
-# ✅ **Overall Score (1-5)** → Justify why this score was assigned.  
-# ✅ **Reviewer Confidence (1-5)** → Rate how confident you are in this evaluation.  
-# ✅ **Reasons for Acceptance** → Highlight the strongest contributions.  
-# ✅ **Reasons for Rejection** → Identify critical weaknesses.  
-# ✅ **How to Improve for Acceptance** → Provide clear suggestions for revision.  
 
-# ---
+📌 Final Recommendations
+✅ Overall Verdict (1-10): Justify the final rating in clear, critical terms.
+✅ Reviewer Confidence (1-5): Rate how confident you are in this evaluation.
+✅ Strongest Contributions: List any strengths without diluting criticism.
+✅ Critical Weaknesses: Directly state why the paper is flawed and if it is not ready for publication.
+✅ How to Improve for Acceptance: Provide 3-5 major, non-trivial steps that require significant effort.
 
-# ## **📌 Example Review Output**
-# **Originality: 3/5**  
-# ✅ **Strength:** The paper proposes a transformer-based approach for multilingual text classification (**Section 3.2, Figure 5**).  
-# ❌ **Weakness:** It mostly builds on **BERT-based models** (**Section 2.1, Related Work**).  
-# 🔹 **Improvement Suggestion:** Compare against **XLM-R and T5 models**.
-
-# **Final Score: 3.5/5 (Borderline Accept)**  
-# 🔹 **Suggested Improvements for Acceptance:**  
-# 1. Add a **new experimental baseline (T5)** to strengthen comparisons.  
-# 2. Improve **clarity in Section 3**.  
-# 3. Provide **code and hyperparameter settings** for reproducibility.  
-
-# ---
-
-# ## **📌 UI Inputs**
-# - **Conference Name**: {conference}
-# - **Additional Comments**: {add_prompt}
-
-# ### **Deliverables:**
-# - **Score Breakdown (1-5) for Each Criterion**
-# - **Conference-Specific Secondary Evaluation**
-# - **Reason for Acceptance/Rejection**
-# - **Final Recommendation** (Accept, Reject, Borderline)
-# - **Reviewer Confidence (1-5)**
-# - **Final Score (1-5)**
-
-# """
-        prompt = """
-## **📌 Research Paper Evaluation Prompt (Refined for Human-Like Feedback)**
-
-**Context:**  
-I have uploaded a **research paper (PDF format)** for evaluation. The goal is to provide a **structured, in-depth review** assessing its **likelihood of acceptance** at a specific **ML/NLP conference** (NeurIPS, ICLR, ICML, ACL, EMNLP, CoNLL). The review should be **thorough, insightful, and actionable**, helping the author understand **strengths, weaknesses, and improvements**.
-
-The evaluation should follow **standard peer-review criteria** while incorporating **conference-specific expectations**. The feedback should be **specific**, referencing actual parts of the paper (e.g., equations, figures, methodology) rather than generic remarks.  
-
-Each category should be assigned a **score from 1 to 5**, with a **clear explanation** of the score, **specific evidence** from the paper, and **practical suggestions for improvement**.
-
----
-
-## **📌 Evaluation Criteria**
-
-Each criterion below should be evaluated on a **1 to 10 scale**, with **thoughtful justifications and direct references to the paper**.
-
-### **1️⃣ Originality (1-5)**
-- **Does the paper introduce a truly novel idea, model, or approach?**  
-- How does it **differ from prior work**?  
-- Is the contribution **incremental or groundbreaking**?  
-
-✅ **Strengths:** Highlight novel aspects and contributions.  
-❌ **Weaknesses:** Point out any areas that lack novelty or are derivative of prior work.  
-🔹 **Improvement Suggestion:** Suggest ways to differentiate the approach, introduce new elements, or benchmark against stronger baselines.
-
----
-
-### **2️⃣ Soundness & Correctness (1-5)**
-- **Is the methodology logically sound and theoretically justified?**  
-- Are assumptions **valid and reasonable**?  
-- Are there any **mathematical flaws, inconsistencies, or missing justifications**?  
-- Are experimental results **statistically significant and well-supported**?  
-
-✅ **Strengths:** Identify solid theoretical contributions and well-structured methodologies.  
-❌ **Weaknesses:** Highlight questionable assumptions, missing justifications, or errors.  
-🔹 **Improvement Suggestion:** Recommend additional experiments, better statistical analysis, or more rigorous theoretical justifications.
-
----
-
-### **3️⃣ Clarity & Presentation (1-5)**
-- **Is the paper well-organized, readable, and easy to follow?**  
-- Are key concepts and results clearly explained?  
-- Are **notation, terminology, and figures well-presented**?  
-
-✅ **Strengths:** Acknowledge clear writing, well-structured explanations, and strong visual aids.  
-❌ **Weaknesses:** Point out confusing sections, unclear explanations, or poor figure labeling.  
-🔹 **Improvement Suggestion:** Suggest specific rewrites, better structuring, or clearer figure captions.
-
----
-
-### **4️⃣ Meaningful Comparison (1-5)**
-- **Does the paper properly compare with prior work?**  
-- Are baselines **appropriate, strong, and up-to-date**?  
-- Is the evaluation **fair and justified**?  
-
-✅ **Strengths:** Highlight fair and comprehensive comparisons.  
-❌ **Weaknesses:** Point out missing benchmarks, cherry-picked results, or unfair comparisons.  
-🔹 **Improvement Suggestion:** Recommend additional comparisons, stronger baselines, or more detailed analysis of results.
-
----
-
-### **5️⃣ Impact & Significance (1-5)**
-- **Does the work have the potential to advance research or practical applications?**  
-- Does it open up **new research directions**?  
-
-✅ **Strengths:** Highlight aspects that could influence future research or industry.  
-❌ **Weaknesses:** Identify if the work is too incremental or lacks a clear impact.  
-🔹 **Improvement Suggestion:** Suggest ways to demonstrate impact through more diverse experiments, real-world validation, or broader discussions.
-
----
-
-### **6️⃣ Technical Depth & Substance (1-5)**
-- **Is the work detailed enough to be meaningful?**  
-- Does it explore multiple perspectives of the problem?  
-
-✅ **Strengths:** Acknowledge well-explored problems, deep insights, or extensive experiments.  
-❌ **Weaknesses:** Point out missing details, shallow exploration, or oversimplifications.  
-🔹 **Improvement Suggestion:** Recommend additional experiments, analysis, or discussions.
-
----
-
-### **7️⃣ Reproducibility (1-5)**
-- **Can the results be replicated by others?**  
-- Are **code, datasets, and hyperparameters included**?  
-
-✅ **Strengths:** If reproducibility is high, highlight well-documented experiments.  
-❌ **Weaknesses:** If key details are missing, point them out.  
-🔹 **Improvement Suggestion:** Encourage sharing code, data, or clearer experiment details.
-
----
-
-### **8️⃣ Conference Appropriateness (1-5)**
-- **Is the paper aligned with the focus of the conference?**  
-- Would it be better suited for another venue?  
-
-✅ **Strengths:** Confirm alignment with conference themes.  
-❌ **Weaknesses:** If misaligned, suggest a better venue.  
-🔹 **Improvement Suggestion:** Adjust framing to better fit the conference.
-
----
-
-### **9️⃣ Ethical Considerations (1-5)**
-- **Does the paper discuss potential biases, fairness, or ethical implications?**  
-
-✅ **Strengths:** If addressed well, acknowledge the ethical considerations.  
-❌ **Weaknesses:** Highlight any overlooked ethical concerns.  
-🔹 **Improvement Suggestion:** Recommend bias analysis, ethical discussions, or impact statements.
-
----
-
-### **🔟 Relation to Prior Work (1-5)**
-- **Does the paper properly cite and position itself within existing research?**  
-
-✅ **Strengths:** Acknowledge thorough literature review and citations.  
-❌ **Weaknesses:** If key references are missing, point them out.  
-🔹 **Improvement Suggestion:** Recommend additional citations or better positioning within the literature.
-
----
-
-## **📌 Conference-Specific Evaluation**
-Beyond standard criteria, assess the paper against **specific expectations of the target conference**:
-
-| **Conference** | **Additional Evaluation Areas** |
-| :---------- | :-------------------------------------------- |
-| **NeurIPS** | **Impact (15%)**, **Theoretical Depth (10%)**, **Reproducibility (5%)** |
-| **ICLR** | **Reproducibility (20%)**, **Open Science (10%)**, **Negative Results (5%)** |
-| **ACL** | **Ethics (15%)**, **Meaningful Comparison (10%)**, **Multilinguality (5%)** |
-| **ICML** | **Algorithmic Innovation (20%)**, **Scalability (10%)** |
-| **EMNLP** | **Practical Utility (20%)**, **Dataset Quality (10%)** |
-
-For the selected conference, provide **additional ratings and explanations** based on these **secondary criteria**.
-
----
-
-## **📌 Final Recommendations**
-After scoring each category, provide a **final verdict**:
-
-✅ **Overall Score (1-10):** Justify why this score was assigned.  
-✅ **Reviewer Confidence (1-5):** Rate confidence in this evaluation.  
-✅ **Strongest Contributions:** Highlight the most impressive aspects.  
-✅ **Critical Weaknesses:** Identify key areas for improvement.  
-✅ **How to Improve for Acceptance:** Provide **3-5 actionable steps**.  
-
----
-
-## **📌 Example Review Output**
-**Originality: 3/5**  
-✅ **Strength:** The proposed method extends transformer-based architectures for multilingual text classification (**Section 3.2, Figure 5**).  
-❌ **Weakness:** The innovation is incremental; it builds on prior BERT models without significant new contributions (**Section 2.1, Related Work**).  
-🔹 **Improvement Suggestion:** Compare against **XLM-R and T5 models** to strengthen the novelty claim.
-
-**Final Score: 7/10 (Borderline Accept)**  
-🔹 **Suggested Improvements:**  
-1. Include **a stronger experimental baseline** (e.g., T5).  
-2. Improve **clarity in Section 3**.  
-3. Provide **code and hyperparameter settings**.  
 
 """
-
 
         genai.configure(api_key=gemini_key)
         model = genai.GenerativeModel(MODEL_NAME)
