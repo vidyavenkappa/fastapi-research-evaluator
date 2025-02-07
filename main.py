@@ -494,173 +494,132 @@ def evaluate_paper(text: str, gemini_key: str, conference: str, add_prompt: str 
     """
     try:
         prompt="""
-You are an expert research reviewer for leading ML/NLP conferences (NeurIPS, ICLR, ICML, CoNLL, ACL, EMNLP). Your task is to **thoroughly evaluate** a research paper (provided in PDF format) based on the **standard peer-review criteria** used by these conferences.
+**📌 Research Paper Evaluation Prompt**
 
-### **Instructions**
-- Your review must be **structured, specific, and detailed**, referencing **actual parts of the paper** (e.g., equations, figures, tables, methodology sections).
-- Assign a **score from 1-5** for each criterion and provide:
-  - **Justification**: Explain why the score was assigned.
-  - **Specific Evidence**: Cite parts of the paper to support the evaluation.
-  - **Actionable Suggestions**: Recommend concrete improvements to increase acceptance chances.
-- Tailor the evaluation to the **target conference** by adjusting the scoring **based on its specific focus and weighting**.
+I have uploaded a research paper in PDF format, and I need a **structured, thorough evaluation** to determine its likelihood of acceptance at a specific **ML/NLP conference** (NeurIPS, ICLR, ICML, CoNLL, ACL, EMNLP). The review should be based on **standard peer-review criteria** along with additional **conference-specific evaluation criteria**.
+
+The evaluation must be **specific and detailed**, referencing **actual parts of the paper** (e.g., equations, figures, tables, methodology sections). Each category should be assigned a **score from 1 to 5**, with **clear reasoning** for the score and **specific improvement suggestions**.
 
 ---
 
-## **Evaluation Criteria**
+## **📌 Evaluation Criteria**
 
-### **Core Criteria (Mandatory for All Conferences)**
-Each paper is evaluated on the following **core criteria**:
+For each criterion below, assign a **score from 1 to 5** and provide:
+- **Detailed Justification** → Why was this score assigned?  
+- **Specific Evidence** → Cite sections of the paper that support this evaluation.  
+- **Actionable Suggestions** → Provide concrete recommendations for improvement.  
 
-#### **1️⃣ Originality (1-5)**
+### **1️⃣ Originality (1-5)**
 - Does the paper introduce a **novel idea, model, or approach**?
 - How does it differ from previous work?
-- Are there **clear innovations** or is it an **incremental improvement**?
+- Are there **clear innovations**, or is it an **incremental improvement**?
 
-**Examples:**
-- **5/5**: Proposes a fundamentally new **architecture, learning paradigm, or theoretical breakthrough**.
-- **3/5**: Improves an existing method (**e.g., a 20% faster training optimization**).
-- **1/5**: Minor tweak (**e.g., "Changing dropout rate in ResNet"**).
+🔹 **Improvement Suggestion**: Differentiate the method further, add novel aspects, or compare with additional baselines.
 
-**Improvement Suggestions:**
-- Highlight how the approach can be more differentiated.
-- Recommend additional baselines for stronger novelty.
-
----
-
-#### **2️⃣ Soundness & Correctness (1-5)**
+### **2️⃣ Soundness & Correctness (1-5)**
 - Is the methodology logically sound and **theoretically justified**?
 - Are **assumptions valid**, and are there any **mathematical flaws**?
-- Are experiments **statistically significant**, or are conclusions based on weak evidence?
+- Are experiments **statistically significant**?
 
-**Examples:**
-- **5/5**: Rigorous proofs, statistically valid experiments.
-- **3/5**: Some missing statistical significance testing.
-- **1/5**: Invalid assumptions.
+🔹 **Improvement Suggestion**: Add missing proofs, conduct ablation studies, or strengthen experimental justification.
 
-**Improvement Suggestions:**
-- Add mathematical derivations, additional experimental validation, or ablation studies.
-
----
-
-#### **3️⃣ Clarity (1-5)**
+### **3️⃣ Clarity (1-5)**
 - Is the paper **well-organized and easy to follow**?
 - Are technical terms, concepts, and figures **clearly explained**?
-- Are equations, tables, and graphs **properly labeled**?
 
-**Examples:**
-- **5/5**: Clear explanations and logical structure.
-- **3/5**: Some dense sections, e.g., theoretical proofs lack intuition.
-- **1/5**: Disorganized or missing key details.
+🔹 **Improvement Suggestion**: Rewrite unclear sections, standardize notation, or improve figure explanations.
 
-**Improvement Suggestions:**
-- Rewrite unclear sections or reorganize for better flow.
-
----
-
-#### **4️⃣ Meaningful Comparison (1-5)**
+### **4️⃣ Meaningful Comparison (1-5)**
 - Does the paper **compare results with prior work**?
 - Are comparisons **fair**, using **strong baselines**?
-- Does it cite the most relevant papers?
 
-**Examples:**
-- **5/5**: Compares against strong state-of-the-art models.
-- **3/5**: Lacks some key comparisons.
-- **1/5**: No meaningful comparisons.
+🔹 **Improvement Suggestion**: Add missing benchmarks, evaluate against newer models.
 
-**Improvement Suggestions:**
-- Recommend additional benchmarks and more relevant citations.
-
----
-
-#### **5️⃣ Impact (1-5)**
+### **5️⃣ Impact (1-5)**
 - How significant is the contribution?
-- Does the paper introduce a method that leads to **new research directions**?
+- Does the paper introduce a method that can lead to **new research directions**?
 
-**Examples:**
-- **5/5**: The method has strong potential for further research.
-- **3/5**: Useful but limited application.
-- **1/5**: Minimal impact.
+🔹 **Improvement Suggestion**: Show real-world applicability or generalization across domains.
 
-**Improvement Suggestions:**
-- Suggest broader applications or additional experiments.
-
----
-
-#### **6️⃣ Substance (1-5)**
+### **6️⃣ Substance (1-5)**
 - Is the **work sufficiently detailed**?
 - Does it explore **multiple aspects of the problem**?
 
-**Examples:**
-- **5/5**: Extensive validation with multiple datasets.
-- **3/5**: Limited experiments.
-- **1/5**: Preliminary results.
+🔹 **Improvement Suggestion**: Add more experiments, datasets, or analysis.
 
-**Improvement Suggestions:**
-- Add more datasets, ablation studies, or additional experiments.
-
----
-
-#### **7️⃣ Replicability (1-5)**
+### **7️⃣ Replicability (1-5)**
 - Can other researchers **reproduce the results**?
 - Are **code, dataset, and hyperparameters included**?
 
-**Examples:**
-- **5/5**: Publicly available code and dataset.
-- **3/5**: Some details missing.
-- **1/5**: No reproducibility details.
+🔹 **Improvement Suggestion**: Provide public code repository, dataset details, and experimental settings.
 
-**Improvement Suggestions:**
-- Share code and dataset preprocessing details.
+### **8️⃣ Appropriateness (1-5)**
+- Does the paper **align with the scope** of the selected conference?
 
----
+🔹 **Improvement Suggestion**: If misaligned, recommend a more suitable venue.
 
-### **Secondary Criteria (Conference-Specific)**
-Each conference prioritizes **specific aspects**. Adjust scores based on the conference:
+### **9️⃣ Ethical Concerns (1-5)**
+- Does the paper consider **bias, fairness, or ethical risks**?
 
-| **Conference** | **Key Secondary Criteria** | **Example Scoring** |
-|-------------|------------------------|----------------|
-| **NeurIPS** | Impact, Theoretical Depth, Reproducibility | *Impact 5*: Addresses a fundamental ML challenge. |
-| **ICLR**    | Reproducibility, Open Science, Negative Results | *Reproducibility 5*: Code & configs provided. |
-| **ACL**     | Ethics, Meaningful Comparison, Multilinguality | *Ethics 5*: Mitigates bias in NLP models. |
-| **ICML**    | Algorithmic Innovation, Scalability | *Innovation 5*: New optimization method with O(n log n) complexity. |
-| **EMNLP**   | Practical Utility, Dataset Quality | *Utility 5*: Deployed in a real-world translation app. |
+🔹 **Improvement Suggestion**: Add analysis of biases, discuss ethical considerations.
+
+### **🔟 Relation to Prior Work (1-5)**
+- Does the paper properly **cite and position itself** within existing research?
+
+🔹 **Improvement Suggestion**: Add key citations from recent literature.
 
 ---
 
-### **Final Scoring Breakdown**
-For each paper, provide:
+## **📌 Conference-Specific Criteria**
+In addition to general criteria, evaluate based on **conference-specific expectations**:
 
-✅ **Score Breakdown:** Assign **1-5** for each **core and secondary criterion**, with justifications.  
-✅ **Reasons for Acceptance:** Highlight specific strengths with evidence.  
-✅ **Reasons for Rejection:** Identify weaknesses that may lead to rejection.  
-✅ **Final Recommendation:** Choose between **Accept, Weak Accept, Borderline, Weak Reject, or Reject**.  
-✅ **Reviewer Confidence (1-5):** Rate confidence in evaluation.  
-✅ **Weighted Final Score (1-5):** Compute based on **conference-specific weights**.  
+| **Conference** | **Secondary Criteria & Weighting** |
+| :---------- | :----------------------------------------------------------- |
+| **NeurIPS** | **Impact (15%)**, **Theoretical Depth (10%)**, **Reproducibility (5%)** |
+| **ICLR** | **Reproducibility (20%)**, **Open Science (10%)**, **Negative Results (5%)** |
+| **ACL** | **Ethics (15%)**, **Meaningful Comparison (10%)**, **Multilinguality (5%)** |
+| **ICML** | **Algorithmic Innovation (20%)**, **Scalability (10%)** |
+| **EMNLP** | **Practical Utility (20%)**, **Dataset Quality (10%)** |
 
----
-
-### **Example Review Output (Markdown Format)**
-
-```markdown
-# Paper Review Summary
-
-## **Originality: 3/5**
-✅ **Strength:** The paper introduces a transformer-based approach for multilingual text classification (**Section 3.2, Figure 5**).  
-❌ **Weakness:** It builds on existing **BERT-based models** (**Section 2.1, Related Work**) without fundamental changes.  
-
-🔹 **Improvement Suggestions:**
-- Extend the model to **low-resource languages** for increased novelty.  
-- Compare against **XLM-R and T5 models** for a stronger baseline.  
+For the **selected conference**, provide **additional ratings and explanations** based on these **secondary criteria**.
 
 ---
 
-## **Final Decision**
-- **Final Score:** 3.5/5 *(Borderline Accept at ACL)*  
-- **Reviewer Confidence:** 4/5  
-- **Suggested Improvements for Acceptance:**
-  1. Add a **new experimental baseline (T5)** for stronger comparison.  
-  2. Improve **clarity in Section 3** for better dataset explanation.  
-  3. Provide **code and hyperparameter settings** for reproducibility.  
+## **📌 Final Recommendations**
+After scoring each category, provide:
+✅ **Overall Score (1-5)** → Justify why this score was assigned.  
+✅ **Reviewer Confidence (1-5)** → Rate how confident you are in this evaluation.  
+✅ **Reasons for Acceptance** → Highlight the strongest contributions.  
+✅ **Reasons for Rejection** → Identify critical weaknesses.  
+✅ **How to Improve for Acceptance** → Provide clear suggestions for revision.  
+
+---
+
+## **📌 Example Review Output**
+**Originality: 3/5**  
+✅ **Strength:** The paper proposes a transformer-based approach for multilingual text classification (**Section 3.2, Figure 5**).  
+❌ **Weakness:** It mostly builds on **BERT-based models** (**Section 2.1, Related Work**).  
+🔹 **Improvement Suggestion:** Compare against **XLM-R and T5 models**.
+
+**Final Score: 3.5/5 (Borderline Accept)**  
+🔹 **Suggested Improvements for Acceptance:**  
+1. Add a **new experimental baseline (T5)** to strengthen comparisons.  
+2. Improve **clarity in Section 3**.  
+3. Provide **code and hyperparameter settings** for reproducibility.  
+
+---
+
+## **📌 UI Inputs**
+- **Conference Name**: {conference}
+- **Additional Comments**: {add_prompt}
+
+### **Deliverables:**
+- **Score Breakdown (1-5) for Each Criterion**
+- **Conference-Specific Secondary Evaluation**
+- **Reason for Acceptance/Rejection**
+- **Final Recommendation** (Accept, Reject, Borderline)
+- **Reviewer Confidence (1-5)**
+- **Final Score (1-5)**
 
 """
 
