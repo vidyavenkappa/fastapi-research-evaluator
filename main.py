@@ -134,18 +134,16 @@ def evaluate_paper(text: str, gemini_key: str, conference: str, add_prompt: str 
     try:
 
         prompt = """
-        
-        
-📌 Research Paper Evaluation Prompt (For Critical, Human-Like Review)
+    
 🔍 Goal:
-Evaluate the research paper (PDF format) critically and rigorously, identifying fundamental technical flaws, inconsistencies, and missing elements. The review must go beyond a structured checklist and provide a nuanced, in-depth critique akin to a detailed human review.
+As a research paper reviewer, I will critically and rigorously evaluate the uploaded paper, identifying fundamental technical flaws, inconsistencies, and missing elements. The review must go beyond a structured checklist and provide a nuanced, in-depth critique akin to a detailed human review.
 
 Conceptual flaws must be explicitly discussed, questioning the coherence between objectives, claims, methodology, and experimental results.
 Mathematical descriptions and formalization should be scrutinized line-by-line to check for inaccuracies, inconsistencies, or insufficient justification.
 Logical reasoning gaps must be pointed out, ensuring the paper’s argumentation is sound and conclusions are well-supported.
 Explicitly highlight missing sections (e.g., related work, justification for hyperparameters, ablation studies, ethical considerations).
 Acknowledge strengths where present, but do not dilute the critique. The review should be direct, critical, and constructive.
-Each evaluation category should be assigned a 1 to 5 score, with:
+Each evaluation category will be assigned a 1 to 5 score, with:
 
 A clear justification for the score (not just general remarks).
 Specific evidence from the paper (e.g., section numbers, equations, figures).
@@ -225,19 +223,15 @@ Beyond standard criteria, assess the paper against specific expectations of the 
 # | **ICLR** | **Reproducibility (20%)**, **Open Science (10%)**, **Negative Results (5%)** |
 # | **ACL** | **Ethics (15%)**, **Meaningful Comparison (10%)**, **Multilinguality (5%)** |
 # | **ICML** | **Algorithmic Innovation (20%)**, **Scalability (10%)** |
-# | **EMNLP** | **Practical Utility (20%)**, **Dataset Quality (10%)** |
 
-# For the selected conference, provide **additional ratings and explanations** based on these **secondary criteria**.
-
-
+#For the selected conference, provide additional ratings and explanations based on these secondary criteria.
 
 📌 Final Recommendations
 ✅ Overall Score (1-10): Justify the final rating in clear, critical terms.
 ✅ Reviewer Confidence (1-5): Rate how confident you are in this evaluation.
 ✅ Strongest Contributions: List any strengths without diluting criticism.
 ✅ Critical Weaknesses: Directly state why the paper is flawed and if it is not ready for publication.
-✅ How to Improve for Acceptance: Provide 3-5 major, non-trivial steps that require significant effort.
-
+✅ How to Improve for Acceptance: Provide 3-5 major, non-trivial steps that require significant effort.#
 
 """
 
